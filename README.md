@@ -1,1 +1,2 @@
-# gerard_diez-generative_art
+# Gerard Díez - Generative Art Piece
+---
