@@ -1,14 +1,32 @@
+/* 
+Name: Gerard Diez
+Date: 31/08/2025
+Description: Autoexigència. It attempts to portray the feeling of having a thousand eyes on you, as if everyone was watching, whatever you do, due to self-inflicted stress.
+Place of production: Sant Cugat, Catalunya
+Instructions (if necessary): Try moving the mouse around! The eyes follow you wherever you go... If you have a powerful computer, set HIGH_PERFORMANCE constant to true.
+*/
+
 Eye[] eyes;
 Background bg;
 final float ROT_AMMT = PI/2;
-final int FRAMERATE = 11;
+final int FRAMERATE = 30;
 float t = 0;
 int npoints;
 final float MIN_DIST = 150;
 final float MARGIN = 120;
+final boolean HIGH_PERFORMANCE = false;
 
-
-//___________ SETUP FUNCTION ___________//
+/**
+ *
+ * This function is where the setup of the whole execution is done. It creates 
+ * a Background object and creates all the
+ * instances of the eyes. The position of the eyes is created with a
+ * Poisson-Disc sampling distribution, meaning it attempts to fill the screen
+ * with randomly positioned points up to a certain MARGIN, with a specified 
+ * MIN_DIST between each point. An Eye object is initialized for each of the positions
+ * and saved in the eyes array.
+ *
+ */
 void setup(){
   size(1920,1080);
   fullScreen(); 
@@ -17,7 +35,7 @@ void setup(){
   
   bg = new Background();
   
-  // CASE 2. POISSON-DISC SAMPLING. It produces points that are tightly-packed, but no closer to each other than a specified minimum distance, resulting in a more natural pattern.
+  // CASE 2. POISSON-DISC SAMPLING.
   ArrayList<PVector> points = poissonDisc(MIN_DIST, 30);
   npoints = points.size();
   eyes = new Eye[points.size()];
@@ -29,14 +47,17 @@ void setup(){
 }
 
 
-//___________ DRAW FUNCTION ___________//
+/*
+* ___________ DRAW FUNCTION ___________
+* This function draws the eyes while incrementing the time counter.
+* Executed every frame.
+*/
 void draw(){
-  //bg.display();
-  background(0);
+  if(HIGH_PERFORMANCE) {bg.display();} else {background(0);}
+
   t+=0.2;
   for (int i=0; i<npoints; i++){
     Eye e = eyes[i];
-
     float dt = 1.0/FRAMERATE;
     e.update(dt);
     e.display();
@@ -45,9 +66,13 @@ void draw(){
 }
 
 
-//___________ POISSON-DISC SAMPLING FUNCTION ___________//
-// r = minimum distance between samples
-// k = # attempts before rejection in the algorithm 
+/*
+* ___________ POISSON-DISC SAMPLING FUNCTION ___________
+* This function was implemented from the article found in /02_research/.
+* @param r [minimum distance between samples]
+* @param k [number of attempts before rejection in the algorithm]
+* @return [ArrayList of PVector types with the coordinates of the points]
+*/
 ArrayList<PVector> poissonDisc(float r, int k) {
   ArrayList<PVector> points = new ArrayList<PVector>();
   ArrayList<PVector> active = new ArrayList<PVector>();

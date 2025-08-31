@@ -1,3 +1,10 @@
+/*
+*
+* Creates an Eye that opens and closes, with random iris color and
+* random tone of red in the sclera (white part of the eye). The eye follows
+* the mouse.
+* 
+*/
 class Eye{
   // Constructor parameters
   float xpos;
@@ -9,7 +16,7 @@ class Eye{
   color sclera_clr;
   color iris_clr;
   float pupil_radius;
-  // Opening parameters
+  // Eye opening parameters
   float open=1;
   float currentH;
   float timer = 0;
@@ -18,10 +25,22 @@ class Eye{
   // Easing parameters
   float x,y;
   float easing=0.1;
-
-  // Also consider coloring the strokes and eyelids
   
-  // Constructor
+  
+  /*
+  *
+  * Constructor function. Generates an Eye object given a set of parameters.
+  * It also generates random values for the initial state (state) of the eye
+  * (opened, closed, opening or closing). The variables defining how long the Eye
+  * is opened or closed, and how long it takes for it to open and close are also 
+  * randomized. Finally, the iris color is randomized.
+  *
+  * @param xpos Horizontal absolute position of the Eye.
+  * @param ypos Vertical absolute position of the Eye.
+  * @param size Size of the Eye.
+  * @param rotation Rotation of the Eye.
+  *
+  */
   Eye(float xpos, float ypos, float size, float rotation){
     this.xpos = xpos;
     this.ypos = ypos;
@@ -41,6 +60,20 @@ class Eye{
     changeColor();
   }
   
+  
+  /*
+  *
+  * Display callback, called every frame. First, the sclera and eyelids are drawn.
+  * The outer shape of the eye is drawn as a mask, so that the eye can be animated to
+  * open and close while the iris and pupil preserve their shape. The mouse tracking
+  * is set, so that the eye looks in the direction of the mouse. First, the easing of
+  * this particular eye is set. The further away the eye is from the mouse, the slower it
+  * will react to mouse movement. The ammount of displacement is also determined by 
+  * the distance of the eye and mouse (with easing applied), but it is constrained within the eye
+  * and with distance limits tokeep it as realistic as possible. Once the position of the 
+  * iris and pupil within the eye is defined, they are drawn and the mask is applied.
+  *
+  */
   void display(){
     pushMatrix();
     translate(xpos, ypos);
@@ -69,11 +102,11 @@ class Eye{
     // Easing ammount proportional to euclidean distance
     float currentEasing = (sqrt(pow(mouseX - xpos, 2) + pow(mouseY - ypos, 2)))/sqrt((pow(width, 2) + pow(height, 2)));
     currentEasing = map(currentEasing, 0, 1, 1, 0);
+    
     // Mapping to square curve.
     currentEasing = pow(currentEasing, 3);
-    // Mapping to S-curve (smoothstep)
-    //currentEasing = constrain(currentEasing, 0, 1);
-    //currentEasing = currentEasing * currentEasing * (3 - 2 * currentEasing);
+    
+    // Mouse tracking
     float targetX = mouseX;
     float dx = targetX - x;
     x += dx * currentEasing;
@@ -81,12 +114,13 @@ class Eye{
     float targetY = mouseY;
     float dy = targetY - y;
     y += dy * currentEasing;
+    
     // Horizontal offset of the iris and pupil according to the distance between the mouse and the eye.
     // Normalized to half of the width & height (full value was not very realistic)
-
     float hor_offset = constrain((x - xpos)/(width/3), -1, 1) * 0.4 * w;
     float vert_offset = constrain((y - ypos)/(height/3), -1, 1) * 0.5 * h;
     
+    // Draw IRIS and PUPIL
     PGraphics eyeImg = createGraphics(int(w), int(h*2));
     eyeImg.beginDraw();
     eyeImg.background(sclera_clr);
@@ -94,11 +128,6 @@ class Eye{
     eyeImg.ellipse(w/2 + hor_offset, h + vert_offset, h*1.5, h*1.5);
     eyeImg.fill(0);
     eyeImg.ellipse(w/2+ hor_offset, h+ vert_offset, pupil_radius/2, pupil_radius*2);
-    //Debug
-    //eyeImg.stroke(0);
-    //eyeImg.strokeWeight(5);
-    //eyeImg.point(0,h);
-    //eyeImg.endDraw();
     
     eyeImg.mask(mask);
     imageMode(CENTER);
@@ -114,13 +143,21 @@ class Eye{
     bezierVertex(w/4, currentH, -w/4, currentH, -w/2, 0);   // bottom lid
     endShape(CLOSE);
 
-    // PUPIL
-    //fill(0);
-    //ellipse(0, 0, pupil_radius/2, pupil_radius*2);
     
     popMatrix();
   }
   
+  
+  /*
+  *
+  * Update function. Updates the blinking animation of the eye, 
+  * which varies depending on the random times set. The state dictates
+  * the actual state of the eye and the timer is used to count time
+  * increments for the animations. Every time the eye goes from closed to open,
+  * the color of the eye and sclera is changed.
+  *
+  * @param dt time increment.
+  */
   void update(float dt) {
     timer += dt;
     
@@ -146,6 +183,13 @@ class Eye{
     open = open * open * (3 - 2 * open);
   }
   
+  
+  /*
+  *
+  * Changes the color of the iris randomly in HSB mode. Changes the color
+  * of the sclera to a random tone of slight red.
+  *
+  */
   void changeColor() {
     colorMode(HSB, 360, 100, 100);
     sclera_clr = color(9, random(26), 100);
