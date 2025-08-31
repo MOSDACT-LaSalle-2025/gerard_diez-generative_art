@@ -1,0 +1,27 @@
+# -------------------------
+# Obsidian-specific ignores
+# -------------------------
+.obsidian/        # Obsidian config folder (UI state, plugins, etc.)
+.obsidian-*/      # Any per-device or per-profile config folders
+
+# -------------------------
+# OS-generated files
+# -------------------------
+.DS_Store         # macOS metadata
+Thumbs.db         # Windows metadata
+desktop.ini       # Windows desktop config
+
+# -------------------------
+# Temporary / backup files
+# -------------------------
+*.swp             # Vim/Neovim swap files
+*.tmp             # Temporary files
+~$*               # Temporary Office lock files
+*.bak             # Backup files
+
+# -------------------------
+# Common editor/project files
+# -------------------------
+.idea/            # JetBrains IDEs
+.vscode/          # VS Code workspace settings
+*.log             # Log files
